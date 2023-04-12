@@ -4,3 +4,6 @@
 
 # Tests
 /coverage
+
+# Environment variables
+.env
