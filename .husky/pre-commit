@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🛠🛠🛠 Run lint-staged 🛠🛠🛠"
+npx lint-staged
+echo '✅✅✅ Linter applied. ✅✅✅'
+
+
+echo "🛠🛠🛠 Run test:cov 🛠🛠🛠"
+npm run test:cov
+echo '✅✅✅ All test passed. ✅✅✅'
+
+
+echo "🛠🛠🛠 Run test:e2e 🛠🛠🛠"
+npm run test:e2e
+echo '✅✅✅ All test passed. ✅✅✅'
+
+
+echo '✅✅✅ Commit created. ✅✅✅'
