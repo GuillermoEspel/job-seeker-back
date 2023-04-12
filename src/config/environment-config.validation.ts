@@ -1,10 +1,12 @@
 import { plainToClass } from 'class-transformer';
-import { IsNumber, validateSync } from 'class-validator';
+import { IsNumber, IsString, validateSync } from 'class-validator';
 
 class EnvironmentVariables {
   // Application
   @IsNumber()
   PORT: number;
+  @IsString()
+  VERSION: string;
 }
 
 export function validate(config: Record<string, unknown>) {
