@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { UserEntity } from 'src/entities';
 import { CreateUserDto } from '../dtos';
 import { UserRepository } from '../repositories';
+import { CreateUserException, GetUserByIdException } from '../exceptions';
 
 @Injectable()
 export class UserService {
@@ -16,7 +18,18 @@ export class UserService {
       return newUserId;
     } catch (error) {
       Logger.error(error.message);
-      throw new Error(error.message); // TODO: Generate exception
+      throw new CreateUserException();
+    }
+  }
+
+  async getUserById(id: string): Promise<UserEntity> {
+    try {
+      const user = await this.userRepository.getById(id);
+      if (!user) throw new Error('User not found.');
+      return user;
+    } catch (error) {
+      Logger.error(error.message);
+      throw new GetUserByIdException();
     }
   }
 }
