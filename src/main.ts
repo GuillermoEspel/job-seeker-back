@@ -1,8 +1,10 @@
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { EnvironmentConfigService } from './config';
+import { DtoException } from './exceptions';
+import { AllExceptionFilter } from './filters';
 
 async function bootstrap() {
   // Create application
@@ -10,6 +12,23 @@ async function bootstrap() {
   const configService = app.get(EnvironmentConfigService);
   const { basePath, port, version } = configService.getAppConfig();
   app.setGlobalPrefix(version);
+
+  // Filters
+  app.useGlobalFilters(new AllExceptionFilter());
+
+  // Pipes
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors) => {
+        const details = errors.flatMap((err) =>
+          !!err.constraints
+            ? Object.values(err.constraints)
+            : err.children.flatMap((item) => Object.values(item.constraints)),
+        );
+        throw new DtoException(details);
+      },
+    }),
+  );
 
   // Swagger
   const configSwagger = new DocumentBuilder()
