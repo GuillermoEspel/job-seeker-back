@@ -7,6 +7,12 @@ class EnvironmentVariables {
   PORT: number;
   @IsString()
   VERSION: string;
+
+  // Mongo Database
+  @IsString()
+  MONGO_URI: string;
+  @IsString()
+  MONGO_DATABASE: string;
 }
 
 export function validate(config: Record<string, unknown>) {

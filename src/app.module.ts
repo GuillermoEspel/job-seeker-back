@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { EnvironmentConfigModule } from './config/environment-config.module';
-import { HealthController } from './controllers';
-import { HealthService } from './services';
+import { HealthController, UserController } from './controllers';
+import { MongoDatabaseModule } from './database';
+import { RepositoriesModule } from './repositories';
+import { HealthService, UserService } from './services';
 
 @Module({
-  imports: [EnvironmentConfigModule],
-  controllers: [HealthController],
-  providers: [HealthService],
+  imports: [EnvironmentConfigModule, MongoDatabaseModule, RepositoriesModule],
+  controllers: [HealthController, UserController],
+  providers: [HealthService, UserService],
 })
 export class AppModule {}
