@@ -2,13 +2,13 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { closeDatabaseConnection, MongoDatabaseTestModule } from '../database';
-import { UserRepository, RepositoriesModule } from '.';
-import { CreateUserDto } from '../dtos';
+import { ApplicantRepository, RepositoriesModule } from '.';
+import { CreateApplicantDto } from '../dtos';
 
-describe('UserRepository', () => {
+describe('ApplicantRepository', () => {
   let connection: Connection;
-  let repository: UserRepository;
-  const createUserDTO: CreateUserDto = {
+  let repository: ApplicantRepository;
+  const createApplicantDto: CreateApplicantDto = {
     email: 'albert@gmail.com',
     password: 'pass123',
   };
@@ -21,7 +21,7 @@ describe('UserRepository', () => {
 
     // Get instances
     connection = await module.get(getConnectionToken());
-    repository = module.get(UserRepository);
+    repository = module.get(ApplicantRepository);
   });
 
   afterEach(async () => {
@@ -40,9 +40,9 @@ describe('UserRepository', () => {
   });
 
   describe('create method', () => {
-    it('should return id when create a user.', async () => {
+    it('should return id when create an applicant.', async () => {
       // Act
-      const result = await repository.create(createUserDTO);
+      const result = await repository.create(createApplicantDto);
 
       // Assert
       expect(result).toBeDefined();
@@ -56,7 +56,7 @@ describe('UserRepository', () => {
         new Error('Invalid id'),
       );
     });
-    it('should return null when not matched a user.', async () => {
+    it('should return null when not matched an applicant.', async () => {
       // Act
       const id = '640210d5b8bd3a0403032ac6';
       const result = await repository.getById(id);
@@ -64,22 +64,22 @@ describe('UserRepository', () => {
       // Assert
       expect(result).toBeNull();
     });
-    it('should return a user.', async () => {
+    it('should return an applicant.', async () => {
       // Arrange
-      const userIdA = await repository.create(createUserDTO);
+      const applicantIdA = await repository.create(createApplicantDto);
 
       // Act
-      const result = await repository.getById(userIdA);
+      const result = await repository.getById(applicantIdA);
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.id).toBe(userIdA);
-      expect(result.email).toBe(createUserDTO.email);
-      expect(result.password).toBe(createUserDTO.password);
+      expect(result.id).toBe(applicantIdA);
+      expect(result.email).toBe(createApplicantDto.email);
+      expect(result.password).toBe(createApplicantDto.password);
     });
   });
   describe('getByEmail method', () => {
-    it('should return null when not matched a user.', async () => {
+    it('should return null when not matched an applicant.', async () => {
       // Act
       const email = 'example@gmail.com';
       const result = await repository.getByEmail(email);
@@ -87,25 +87,25 @@ describe('UserRepository', () => {
       // Assert
       expect(result).toBeNull();
     });
-    it('should return a user.', async () => {
+    it('should return an applicant.', async () => {
       // Arrange
-      const userIdA = await repository.create(createUserDTO);
+      const applicantIdA = await repository.create(createApplicantDto);
 
       // Act
-      const email = createUserDTO.email;
+      const email = createApplicantDto.email;
       const result = await repository.getByEmail(email);
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.id).toBe(userIdA);
-      expect(result.email).toBe(createUserDTO.email);
-      expect(result.password).toBe(createUserDTO.password);
+      expect(result.id).toBe(applicantIdA);
+      expect(result.email).toBe(createApplicantDto.email);
+      expect(result.password).toBe(createApplicantDto.password);
     });
   });
   describe('getAll method', () => {
-    it('should return a list of all users.', async () => {
+    it('should return a list of all applicants.', async () => {
       // Arrange
-      const userIdA = await repository.create(createUserDTO);
+      const applicantIdA = await repository.create(createApplicantDto);
 
       // Act
       const result = await repository.getAll();
@@ -114,7 +114,7 @@ describe('UserRepository', () => {
       expect(result).toBeDefined();
       expect(Array.isArray(result)).toBeTruthy();
       expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(userIdA);
+      expect(result[0].id).toBe(applicantIdA);
     });
   });
 });

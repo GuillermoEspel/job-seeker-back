@@ -1,8 +1,8 @@
 import { Document } from 'mongoose';
 import { ModelDefinition, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema({ collection: 'User' })
-export class User extends Document {
+@Schema({ collection: 'Applicant' })
+export class Applicant extends Document {
   @Prop({
     type: String,
     required: true,
@@ -17,9 +17,9 @@ export class User extends Document {
   password: string;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const ApplicantSchema = SchemaFactory.createForClass(Applicant);
 
-export const UserModelDefinition: ModelDefinition = {
-  name: User.name,
-  schema: UserSchema,
+export const ApplicantModelDefinition: ModelDefinition = {
+  name: Applicant.name,
+  schema: ApplicantSchema,
 };
