@@ -9,8 +9,13 @@ import { MongoConfig } from '../src/database/mongo-database.config';
 import { EnvironmentConfigService } from '../src/config';
 import { AllExceptionFilter } from '../src/filters';
 import { DtoException } from '../src/exceptions';
-import { CreateApplicantDto, UpdateApplicantDto } from '../src/dtos';
-import { ApplicantPresenter } from '../src/presenters';
+import {
+  CreateApplicantDto,
+  LoginDto,
+  RefreshTokenDto,
+  UpdateApplicantDto,
+} from '../src/dtos';
+import { ApplicantPresenter, AuthTokensPresenter } from '../src/presenters';
 
 describe('AppModule (e2e)', () => {
   let app: INestApplication;
@@ -196,8 +201,71 @@ describe('AppModule (e2e)', () => {
   });
 
   describe('AuthController', () => {
-    describe('POST /auth/login', () => {});
-    describe('POST /auth/refresh-token', () => {});
+    describe('POST /auth/login', () => {
+      it('should return 200 when login an applicant.', async () => {
+        // Arrange
+        const createApplicantDto: CreateApplicantDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+        };
+        await request(app.getHttpServer())
+          .post(`/${version}/applicants`)
+          .send(createApplicantDto);
+
+        // Act
+        const dto: LoginDto = {
+          email: createApplicantDto.email,
+          password: createApplicantDto.password,
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/auth/login`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: AuthTokensPresenter = result.body;
+        expect(body.token).toBeDefined();
+        expect(body.refreshToken).toBeDefined();
+      });
+    });
+    describe('POST /auth/refresh-token', () => {
+      it('should return 200 when refresh token.', async () => {
+        // Arrange
+        const createApplicantDto: CreateApplicantDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+        };
+        await request(app.getHttpServer())
+          .post(`/${version}/applicants`)
+          .send(createApplicantDto);
+        const loginDto: LoginDto = {
+          email: createApplicantDto.email,
+          password: createApplicantDto.password,
+        };
+        const loginResult = await request(app.getHttpServer())
+          .post(`/${version}/auth/login`)
+          .send(loginDto);
+        const loginBodyResult: AuthTokensPresenter = loginResult.body;
+
+        // Act
+        const dto: RefreshTokenDto = {
+          refreshToken: loginBodyResult.refreshToken,
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/auth/refresh-token`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: AuthTokensPresenter = result.body;
+        expect(body.token).toBeDefined();
+        expect(body.refreshToken).toBeDefined();
+      });
+    });
     describe('POST /auth/recovery-password', () => {});
     describe('POST /auth/reset-password', () => {});
   });

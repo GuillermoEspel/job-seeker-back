@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services';
 import {
@@ -15,6 +15,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Ok.',
     type: AuthTokensPresenter,
@@ -25,6 +26,7 @@ export class AuthController {
   }
 
   @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Ok.',
     type: AuthTokensPresenter,
@@ -37,11 +39,13 @@ export class AuthController {
   }
 
   @Post('recovery-password')
+  @HttpCode(HttpStatus.OK)
   recoveryPassword(@Body() body: RecoveryPasswordDto): Promise<void> {
     return this.authService.recoveryPassword(body);
   }
 
   @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
   resetPassword(@Body() body: ResetPasswordDto): Promise<void> {
     return this.authService.resetPassword(body);
   }
