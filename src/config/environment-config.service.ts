@@ -12,6 +12,20 @@ interface MongoDatabaseConfig {
   database: string;
 }
 
+export interface JwtApplicantConfig {
+  secret: string;
+  expiresIn: string;
+  refreshSecret: string;
+  refreshExpiresIn: string;
+}
+
+export interface JwtCompanyConfig {
+  secret: string;
+  expiresIn: string;
+  refreshSecret: string;
+  refreshExpiresIn: string;
+}
+
 @Injectable()
 export class EnvironmentConfigService {
   constructor(private configService: ConfigService) {}
@@ -28,6 +42,32 @@ export class EnvironmentConfigService {
     return {
       uri: this.configService.get<string>('MONGO_URI'),
       database: this.configService.get<string>('MONGO_DATABASE'),
+    };
+  }
+
+  getJwtApplicantConfig(): JwtApplicantConfig {
+    return {
+      secret: this.configService.get<string>('JWT_APPLICANT_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_APPLICANT_EXPIRES_IN'),
+      refreshSecret: this.configService.get<string>(
+        'JWT_APPLICANT_REFRESH_SECRET',
+      ),
+      refreshExpiresIn: this.configService.get<string>(
+        'JWT_APPLICANT_REFRESH_EXPIRES_IN',
+      ),
+    };
+  }
+
+  getJwtCompanyConfig(): JwtCompanyConfig {
+    return {
+      secret: this.configService.get<string>('JWT_COMPANY_SECRET'),
+      expiresIn: this.configService.get<string>('JWT_COMPANY_EXPIRES_IN'),
+      refreshSecret: this.configService.get<string>(
+        'JWT_COMPANY_REFRESH_SECRET',
+      ),
+      refreshExpiresIn: this.configService.get<string>(
+        'JWT_COMPANY_REFRESH_EXPIRES_IN',
+      ),
     };
   }
 }
