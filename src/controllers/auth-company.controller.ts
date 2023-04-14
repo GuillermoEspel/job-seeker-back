@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthCompanyService } from '../services';
 import {
@@ -15,6 +15,7 @@ export class AuthCompanyController {
   constructor(private readonly authService: AuthCompanyService) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Ok.',
     type: AuthTokensCompanyPresenter,
@@ -27,6 +28,7 @@ export class AuthCompanyController {
   }
 
   @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
   @ApiOkResponse({
     description: 'Ok.',
     type: AuthTokensCompanyPresenter,
@@ -39,11 +41,13 @@ export class AuthCompanyController {
   }
 
   @Post('recovery-password')
+  @HttpCode(HttpStatus.OK)
   recoveryPassword(@Body() body: RecoveryPasswordCompanyDto): Promise<void> {
     return this.authService.recoveryPassword(body);
   }
 
   @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
   resetPassword(@Body() body: ResetPasswordCompanyDto): Promise<void> {
     return this.authService.resetPassword(body);
   }

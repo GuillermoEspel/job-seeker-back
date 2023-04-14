@@ -22,6 +22,10 @@ export class ApplicantController {
   constructor(private readonly applicantService: ApplicantService) {}
 
   @Post()
+  @ApiOkResponse({
+    description: 'Ok.',
+    type: ApplicantPresenter,
+  })
   async createApplicant(
     @Body() body: CreateApplicantDto,
   ): Promise<ApplicantPresenter> {

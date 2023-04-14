@@ -18,8 +18,15 @@ export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Post()
-  createCompany(@Body() body: CreateCompanyDto): Promise<string> {
-    return this.companyService.createCompany(body);
+  @ApiOkResponse({
+    description: 'Ok.',
+    type: CompanyPresenter,
+  })
+  async createCompany(
+    @Body() body: CreateCompanyDto,
+  ): Promise<CompanyPresenter> {
+    const company = await this.companyService.createCompany(body);
+    return new CompanyPresenter(company);
   }
 
   @Get(':id')

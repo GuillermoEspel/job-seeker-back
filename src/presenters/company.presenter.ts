@@ -3,6 +3,7 @@ import { CompanyEntity } from '../entities';
 
 const companyPresenterExample: CompanyPresenter = {
   id: '63d2e28f18828f9cc35369aa',
+  email: 'test@example.com',
   name: 'Company A',
   logo: 'logo.png',
 };
@@ -13,6 +14,12 @@ export class CompanyPresenter {
     example: companyPresenterExample.id,
   })
   id: string;
+
+  @ApiProperty({
+    description: 'Company email.',
+    example: companyPresenterExample.email,
+  })
+  email: string;
 
   @ApiProperty({
     description: 'Company name.',
@@ -28,6 +35,7 @@ export class CompanyPresenter {
 
   constructor(company: CompanyEntity) {
     this.id = company.id;
+    this.email = company.email;
     this.name = company.name;
     this.logo = company.logo;
   }

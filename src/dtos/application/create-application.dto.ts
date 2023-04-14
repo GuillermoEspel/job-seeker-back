@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ApplicationStatus } from 'src/enums';
+import { ApplicationStatus } from '../../enums';
 
 const createApplicationDtoExample: CreateApplicationDto = {
   jobId: '63d2e28f18828f9cc35369aa',

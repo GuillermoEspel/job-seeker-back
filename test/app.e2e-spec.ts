@@ -11,11 +11,19 @@ import { AllExceptionFilter } from '../src/filters';
 import { DtoException } from '../src/exceptions';
 import {
   CreateApplicantDto,
+  CreateCompanyDto,
+  LoginCompanyDto,
   LoginDto,
+  RefreshTokenCompanyDto,
   RefreshTokenDto,
   UpdateApplicantDto,
+  UpdateCompanyDto,
 } from '../src/dtos';
-import { ApplicantPresenter, AuthTokensPresenter } from '../src/presenters';
+import {
+  ApplicantPresenter,
+  AuthTokensPresenter,
+  CompanyPresenter,
+} from '../src/presenters';
 
 describe('AppModule (e2e)', () => {
   let app: INestApplication;
@@ -271,16 +279,193 @@ describe('AppModule (e2e)', () => {
   });
 
   describe('CompanyController', () => {
-    describe('POST /companies', () => {});
-    describe('GET /companies/:id', () => {});
-    describe('GET /companies', () => {});
-    describe('PUT /companies/:id', () => {});
+    describe('POST /companies', () => {
+      it('should return 201 when create a company.', async () => {
+        // Act
+        const dto: CreateCompanyDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+          name: 'Company A',
+          logo: 'logo.png',
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(201);
+        expect(result.body).toBeDefined();
+        const body: CompanyPresenter = result.body;
+        expect(body.id).toBeDefined();
+        expect(body.email).toBe(dto.email);
+        expect(body.name).toBe(dto.name);
+        expect(body.logo).toBe(dto.logo);
+      });
+    });
+    describe('GET /companies/:id', () => {
+      it('should return 200 when return a company.', async () => {
+        // Arrange
+        const createCompanyDto: CreateCompanyDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+          name: 'Company A',
+          logo: 'logo.png',
+        };
+        const newCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const newCompanyBodyResult: CompanyPresenter = newCompanyResult.body;
+
+        // Act
+        const id = newCompanyBodyResult.id;
+        const result = await request(app.getHttpServer()).get(
+          `/${version}/companies/${id}`,
+        );
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: CompanyPresenter = result.body;
+        expect(body.id).toBe(id);
+        expect(body.email).toBe(createCompanyDto.email);
+        expect(body.name).toBe(createCompanyDto.name);
+        expect(body.logo).toBe(createCompanyDto.logo);
+      });
+    });
+    describe('GET /companies', () => {
+      it('should return 200 when return a list of companies.', async () => {
+        // Arrange
+        const createCompanyDto: CreateCompanyDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+          name: 'Company A',
+          logo: 'logo.png',
+        };
+        const newCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const newCompanyBodyResult: CompanyPresenter = newCompanyResult.body;
+
+        // Act
+        const result = await request(app.getHttpServer()).get(
+          `/${version}/companies`,
+        );
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: CompanyPresenter[] = result.body;
+        expect(body[0].id).toBe(newCompanyBodyResult.id);
+        expect(body[0].email).toBe(newCompanyBodyResult.email);
+        expect(body[0].name).toBe(newCompanyBodyResult.name);
+        expect(body[0].logo).toBe(newCompanyBodyResult.logo);
+      });
+    });
+    describe('PUT /companies/:id', () => {
+      it('should return 200 when update a company.', async () => {
+        // Arrange
+        const createCompanyDto: CreateCompanyDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+          name: 'Company A',
+          logo: 'logo.png',
+        };
+        const newCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const newCompanyBodyResult: CompanyPresenter = newCompanyResult.body;
+
+        // Act
+        const id = newCompanyBodyResult.id;
+        const dto: UpdateCompanyDto = {
+          logo: 'newLogo.png',
+        };
+        const result = await request(app.getHttpServer())
+          .put(`/${version}/companies/${id}`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({});
+      });
+    });
     describe('DELETE /companies/:id', () => {});
   });
 
   describe('AuthCompanyController', () => {
-    describe('POST /auth-company/login', () => {});
-    describe('POST /auth-company/refresh-token', () => {});
+    describe('POST /auth-company/login', () => {
+      it('should return 200 when login a company.', async () => {
+        // Arrange
+        const createCompanyDto: CreateCompanyDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+          name: 'Company A',
+          logo: 'logo.png',
+        };
+        await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+
+        // Act
+        const dto: LoginCompanyDto = {
+          email: createCompanyDto.email,
+          password: createCompanyDto.password,
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/auth-company/login`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: AuthTokensPresenter = result.body;
+        expect(body.token).toBeDefined();
+        expect(body.refreshToken).toBeDefined();
+      });
+    });
+    describe('POST /auth-company/refresh-token', () => {
+      it('should return 200 when refresh token.', async () => {
+        // Arrange
+        const createCompanyDto: CreateCompanyDto = {
+          email: 'test@example.com',
+          password: 'pass1234',
+          name: 'Company A',
+          logo: 'logo.png',
+        };
+        await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const loginDto: LoginDto = {
+          email: createCompanyDto.email,
+          password: createCompanyDto.password,
+        };
+        const loginResult = await request(app.getHttpServer())
+          .post(`/${version}/auth-company/login`)
+          .send(loginDto);
+        const loginBodyResult: AuthTokensPresenter = loginResult.body;
+
+        // Act
+        const dto: RefreshTokenCompanyDto = {
+          refreshToken: loginBodyResult.refreshToken,
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/auth-company/refresh-token`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: AuthTokensPresenter = result.body;
+        expect(body.token).toBeDefined();
+        expect(body.refreshToken).toBeDefined();
+      });
+    });
     describe('POST /auth-company/recovery-password', () => {});
     describe('POST /auth-company/reset-password', () => {});
   });
