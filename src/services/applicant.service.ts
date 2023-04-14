@@ -8,7 +8,10 @@ import {
 import { ApplicantRepository } from '../repositories';
 import {
   CreateApplicantException,
+  DeleteApplicantByIdException,
   GetApplicantByIdException,
+  GetApplicantsException,
+  UpdateApplicantByIdException,
 } from '../exceptions';
 import { HashService } from './hash.service';
 
@@ -19,7 +22,7 @@ export class ApplicantService {
     private hashService: HashService,
   ) {}
 
-  async createApplicant(dto: CreateApplicantDto): Promise<string> {
+  async createApplicant(dto: CreateApplicantDto): Promise<ApplicantEntity> {
     try {
       const { email, password } = dto;
       const applicant = await this.applicantRepository.getByEmail(email);
@@ -30,7 +33,10 @@ export class ApplicantService {
         email,
         password: hashedPassword,
       });
-      return newApplicantId;
+      const newApplicant = await this.applicantRepository.getById(
+        newApplicantId,
+      );
+      return newApplicant;
     } catch (error) {
       Logger.error(error.message);
       throw new CreateApplicantException();
@@ -38,14 +44,13 @@ export class ApplicantService {
   }
 
   async getApplicants(dto: GetApplicantsDto): Promise<ApplicantEntity[]> {
-    // TODO: Implement
-    return [
-      {
-        id: 'uuid',
-        email: 'uuid@example.com',
-        password: 'pass123',
-      },
-    ];
+    try {
+      const applicants = await this.applicantRepository.getAll();
+      return applicants;
+    } catch (error) {
+      Logger.error(error.message);
+      throw new GetApplicantsException();
+    }
   }
 
   async getApplicantById(id: string): Promise<ApplicantEntity> {
@@ -63,10 +68,26 @@ export class ApplicantService {
     id: string,
     dto: UpdateApplicantDto,
   ): Promise<void> {
-    // TODO: Implement
+    try {
+      const applicant = await this.applicantRepository.getById(id);
+      if (!applicant) throw new Error('User not found.');
+
+      const hashedPassword = this.hashService.hash(dto.password);
+      await this.applicantRepository.updateById(id, {
+        password: hashedPassword,
+      });
+    } catch (error) {
+      Logger.error(error.message);
+      throw new UpdateApplicantByIdException();
+    }
   }
 
   async deleteApplicantById(id: string): Promise<void> {
-    // TODO: Implement
+    try {
+      // TODO: Implement
+    } catch (error) {
+      Logger.error(error.message);
+      throw new DeleteApplicantByIdException();
+    }
   }
 }

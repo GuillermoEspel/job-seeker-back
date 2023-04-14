@@ -22,8 +22,11 @@ export class ApplicantController {
   constructor(private readonly applicantService: ApplicantService) {}
 
   @Post()
-  createApplicant(@Body() body: CreateApplicantDto): Promise<string> {
-    return this.applicantService.createApplicant(body);
+  async createApplicant(
+    @Body() body: CreateApplicantDto,
+  ): Promise<ApplicantPresenter> {
+    const applicant = await this.applicantService.createApplicant(body);
+    return new ApplicantPresenter(applicant);
   }
 
   @Get(':id')
