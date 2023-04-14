@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { EnvironmentConfigModule } from './config/environment-config.module';
 import {
   ApplicantController,
@@ -20,10 +21,17 @@ import {
   JobService,
   ApplicantService,
   HashService,
+  JWTApplicantService,
+  JWTCompanyPanyService,
 } from './services';
 
 @Module({
-  imports: [EnvironmentConfigModule, MongoDatabaseModule, RepositoriesModule],
+  imports: [
+    EnvironmentConfigModule,
+    JwtModule.register({}),
+    MongoDatabaseModule,
+    RepositoriesModule,
+  ],
   controllers: [
     ApplicantController,
     ApplicationController,
@@ -41,6 +49,7 @@ import {
     CompanyService,
     HashService,
     HealthService,
+    JWTApplicantService,
     JobService,
   ],
 })
