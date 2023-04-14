@@ -1,5 +1,6 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { ApplicationStatus } from 'src/enums';
 
 const createApplicationDtoExample: CreateApplicationDto = {
   jobId: '63d2e28f18828f9cc35369aa',
@@ -22,4 +23,8 @@ export class CreateApplicationDto {
   @IsNotEmpty()
   @IsString()
   readonly applicantId: string;
+}
+
+export class CreateApplicationBDDto extends CreateApplicationDto {
+  status: ApplicationStatus;
 }

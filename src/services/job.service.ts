@@ -15,6 +15,7 @@ export class JobService {
       id: 'uuid',
       title: 'Title A',
       description: 'Description A',
+      companyId: '63d2e28f18828f9cc35369aa',
     };
   }
 
@@ -25,6 +26,7 @@ export class JobService {
         id: 'uuid',
         title: 'Title A',
         description: 'Description A',
+        companyId: '63d2e28f18828f9cc35369aa',
       },
     ];
   }

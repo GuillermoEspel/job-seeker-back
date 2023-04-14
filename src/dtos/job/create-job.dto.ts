@@ -4,6 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 const createJobDtoExample: CreateJobDto = {
   title: 'Title A',
   description: 'Description A',
+  companyId: '63d2e28f18828f9cc35369aa',
 };
 
 export class CreateJobDto {
@@ -22,4 +23,12 @@ export class CreateJobDto {
   @IsNotEmpty()
   @IsString()
   readonly description: string;
+
+  @ApiProperty({
+    description: 'Job company id',
+    example: createJobDtoExample.companyId,
+  })
+  @IsNotEmpty()
+  @IsString()
+  readonly companyId: string;
 }

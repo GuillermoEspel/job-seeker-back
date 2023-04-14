@@ -2,15 +2,17 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { closeDatabaseConnection, MongoDatabaseTestModule } from '../database';
-import { ApplicantRepository, RepositoriesModule } from '.';
-import { CreateApplicantDto, UpdateApplicantDto } from '../dtos';
+import { CompanyRepository, RepositoriesModule } from '.';
+import { CreateCompanyDto, UpdateCompanyDto } from '../dtos';
 
-describe('ApplicantRepository', () => {
+describe('CompanyRepository', () => {
   let connection: Connection;
-  let repository: ApplicantRepository;
-  const createApplicantDto: CreateApplicantDto = {
+  let repository: CompanyRepository;
+  const createCompanyDto: CreateCompanyDto = {
     email: 'albert@gmail.com',
     password: 'pass123',
+    name: 'Company A',
+    logo: 'logo.png',
   };
 
   beforeEach(async () => {
@@ -21,7 +23,7 @@ describe('ApplicantRepository', () => {
 
     // Get instances
     connection = await module.get(getConnectionToken());
-    repository = module.get(ApplicantRepository);
+    repository = module.get(CompanyRepository);
   });
 
   afterEach(async () => {
@@ -40,9 +42,9 @@ describe('ApplicantRepository', () => {
   });
 
   describe('create method', () => {
-    it('should return id when create an applicant.', async () => {
+    it('should return id when create a company.', async () => {
       // Act
-      const result = await repository.create(createApplicantDto);
+      const result = await repository.create(createCompanyDto);
 
       // Assert
       expect(result).toBeDefined();
@@ -56,7 +58,7 @@ describe('ApplicantRepository', () => {
         new Error('Invalid id'),
       );
     });
-    it('should return null when not matched an applicant.', async () => {
+    it('should return null when not matched a company.', async () => {
       // Act
       const id = '640210d5b8bd3a0403032ac6';
       const result = await repository.getById(id);
@@ -64,22 +66,22 @@ describe('ApplicantRepository', () => {
       // Assert
       expect(result).toBeNull();
     });
-    it('should return an applicant.', async () => {
+    it('should return a company.', async () => {
       // Arrange
-      const applicantIdA = await repository.create(createApplicantDto);
+      const companyIdA = await repository.create(createCompanyDto);
 
       // Act
-      const result = await repository.getById(applicantIdA);
+      const result = await repository.getById(companyIdA);
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.id).toBe(applicantIdA);
-      expect(result.email).toBe(createApplicantDto.email);
-      expect(result.password).toBe(createApplicantDto.password);
+      expect(result.id).toBe(companyIdA);
+      expect(result.email).toBe(createCompanyDto.email);
+      expect(result.password).toBe(createCompanyDto.password);
     });
   });
   describe('getByEmail method', () => {
-    it('should return null when not matched an applicant.', async () => {
+    it('should return null when not matched a company.', async () => {
       // Act
       const email = 'example@gmail.com';
       const result = await repository.getByEmail(email);
@@ -87,25 +89,25 @@ describe('ApplicantRepository', () => {
       // Assert
       expect(result).toBeNull();
     });
-    it('should return an applicant.', async () => {
+    it('should return a company.', async () => {
       // Arrange
-      const applicantIdA = await repository.create(createApplicantDto);
+      const companyIdA = await repository.create(createCompanyDto);
 
       // Act
-      const email = createApplicantDto.email;
+      const email = createCompanyDto.email;
       const result = await repository.getByEmail(email);
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.id).toBe(applicantIdA);
-      expect(result.email).toBe(createApplicantDto.email);
-      expect(result.password).toBe(createApplicantDto.password);
+      expect(result.id).toBe(companyIdA);
+      expect(result.email).toBe(createCompanyDto.email);
+      expect(result.password).toBe(createCompanyDto.password);
     });
   });
   describe('getAll method', () => {
-    it('should return a list of all applicants.', async () => {
+    it('should return a list of all companies.', async () => {
       // Arrange
-      const applicantIdA = await repository.create(createApplicantDto);
+      const companyIdA = await repository.create(createCompanyDto);
 
       // Act
       const result = await repository.getAll();
@@ -114,7 +116,7 @@ describe('ApplicantRepository', () => {
       expect(result).toBeDefined();
       expect(Array.isArray(result)).toBeTruthy();
       expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(applicantIdA);
+      expect(result[0].id).toBe(companyIdA);
     });
   });
 
@@ -122,41 +124,43 @@ describe('ApplicantRepository', () => {
     it('should throw error when id is invalid', async () => {
       // Act + Assert
       const id = '123456';
-      const update: UpdateApplicantDto = {
-        password: 'newpass123',
+      const update: UpdateCompanyDto = {
+        logo: 'newlogo.png',
       };
       expect(repository.updateById(id, update)).rejects.toThrowError(
         new Error('Invalid id'),
       );
     });
-    it('should return false when not matched an applicant.', async () => {
+    it('should return false when not matched a company.', async () => {
       // Act
       const id = '640210d5b8bd3a0403032ac6';
-      const update: UpdateApplicantDto = {
-        password: 'newpass123',
+      const update: UpdateCompanyDto = {
+        logo: 'newlogo.png',
       };
       const result = await repository.updateById(id, update);
 
       // Assert
       expect(result).toBeFalsy();
     });
-    it('should update an applicant.', async () => {
+    it('should update a company.', async () => {
       // Arrange
-      const applicantIdA = await repository.create(createApplicantDto);
+      const companyIdA = await repository.create(createCompanyDto);
 
       // Act
-      const update: UpdateApplicantDto = {
-        password: 'newpass123',
+      const update: UpdateCompanyDto = {
+        logo: 'newlogo.png',
       };
-      const result = await repository.updateById(applicantIdA, update);
+      const result = await repository.updateById(companyIdA, update);
 
       // Assert
       expect(result).toBeDefined();
       expect(result).toBeTruthy();
-      const applicant = await repository.getById(applicantIdA);
-      expect(applicant.id).toBe(applicantIdA);
-      expect(applicant.email).toBe(createApplicantDto.email);
-      expect(applicant.password).toBe(update.password);
+      const company = await repository.getById(companyIdA);
+      expect(company.id).toBe(companyIdA);
+      expect(company.email).toBe(createCompanyDto.email);
+      expect(company.password).toBe(createCompanyDto.password);
+      expect(company.name).toBe(createCompanyDto.name);
+      expect(company.logo).toBe(update.logo);
     });
   });
 });

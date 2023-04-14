@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ApplicantEntity } from '../entities';
 import { Applicant } from '../database/schemas';
 import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model } from 'mongoose';
-import { CreateApplicantDto } from '../dtos';
+import { isValidObjectId, Model, UpdateQuery } from 'mongoose';
+import { CreateApplicantDto, UpdateApplicantDto } from '../dtos';
 
 @Injectable()
 export class ApplicantRepository {
@@ -13,10 +13,10 @@ export class ApplicantRepository {
   ) {}
 
   async create(dto: CreateApplicantDto): Promise<string> {
-    const document = new ApplicantEntity();
-    document.email = dto.email;
-    document.password = dto.password;
-    const item = await this.applicantModel.create(document);
+    const item = await this.applicantModel.create({
+      email: dto.email,
+      password: dto.password,
+    });
     return item._id.toString();
   }
 
@@ -38,8 +38,14 @@ export class ApplicantRepository {
     return items.map((item) => this.toApplicantEntity(item));
   }
 
-  async updateById(id: string): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async updateById(id: string, update: UpdateApplicantDto): Promise<boolean> {
+    if (!isValidObjectId(id)) throw new Error('Invalid id');
+
+    const updateQuery: UpdateQuery<Applicant> = {
+      password: update.password,
+    };
+    const item = await this.applicantModel.findByIdAndUpdate(id, updateQuery);
+    return item ? true : false;
   }
 
   private toApplicantEntity(applicant: Applicant): ApplicantEntity {

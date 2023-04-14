@@ -13,6 +13,8 @@ export class CompanyService {
     // TODO: Implement
     return {
       id: 'uuid',
+      email: 'test@example.com',
+      password: 'pass123',
       name: 'Company A',
       logo: 'logo.png',
     };
@@ -23,6 +25,8 @@ export class CompanyService {
     return [
       {
         id: 'uuid',
+        email: 'test@example.com',
+        password: 'pass123',
         name: 'Company A',
         logo: 'logo.png',
       },
