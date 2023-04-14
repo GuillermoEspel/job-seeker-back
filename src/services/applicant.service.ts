@@ -10,18 +10,26 @@ import {
   CreateApplicantException,
   GetApplicantByIdException,
 } from '../exceptions';
+import { HashService } from './hash.service';
 
 @Injectable()
 export class ApplicantService {
-  constructor(private applicantRepository: ApplicantRepository) {}
+  constructor(
+    private applicantRepository: ApplicantRepository,
+    private hashService: HashService,
+  ) {}
 
   async createApplicant(dto: CreateApplicantDto): Promise<string> {
     try {
       const { email, password } = dto;
       const applicant = await this.applicantRepository.getByEmail(email);
       if (applicant) throw new Error('Applicant already exists.');
-      // TODO: hash password
-      const newApplicantId = await this.applicantRepository.create(dto);
+
+      const hashedPassword = this.hashService.hash(password);
+      const newApplicantId = await this.applicantRepository.create({
+        email,
+        password: hashedPassword,
+      });
       return newApplicantId;
     } catch (error) {
       Logger.error(error.message);

@@ -19,6 +19,7 @@ import {
   HealthService,
   JobService,
   ApplicantService,
+  HashService,
 } from './services';
 
 @Module({
@@ -38,6 +39,7 @@ import {
     AuthCompanyService,
     AuthService,
     CompanyService,
+    HashService,
     HealthService,
     JobService,
   ],
