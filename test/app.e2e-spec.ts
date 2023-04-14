@@ -12,17 +12,20 @@ import { DtoException } from '../src/exceptions';
 import {
   CreateApplicantDto,
   CreateCompanyDto,
+  CreateJobDto,
   LoginCompanyDto,
   LoginDto,
   RefreshTokenCompanyDto,
   RefreshTokenDto,
   UpdateApplicantDto,
   UpdateCompanyDto,
+  UpdateJobDto,
 } from '../src/dtos';
 import {
   ApplicantPresenter,
   AuthTokensPresenter,
   CompanyPresenter,
+  JobPresenter,
 } from '../src/presenters';
 
 describe('AppModule (e2e)', () => {
@@ -30,6 +33,7 @@ describe('AppModule (e2e)', () => {
   let mongod: MongoMemoryServer;
   let connection: Connection;
   let version: string;
+  let createCompanyDto: CreateCompanyDto;
 
   beforeEach(async () => {
     // Initialize mongo memory server
@@ -72,6 +76,14 @@ describe('AppModule (e2e)', () => {
       }),
     );
     await app.init();
+
+    // Prepare data for tests
+    createCompanyDto = {
+      email: 'test@example.com',
+      password: 'pass1234',
+      name: 'Company A',
+      logo: 'logo.png',
+    };
   });
 
   afterEach(async () => {
@@ -471,10 +483,138 @@ describe('AppModule (e2e)', () => {
   });
 
   describe('JobController', () => {
-    describe('POST /jobs', () => {});
-    describe('GET /jobs/:id', () => {});
-    describe('GET /jobs', () => {});
-    describe('PUT /jobs/:id', () => {});
+    describe('POST /jobs', () => {
+      it('should return 201 when create a job.', async () => {
+        // Arrange
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+
+        // Act
+        const dto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(201);
+        expect(result.body).toBeDefined();
+        const body: JobPresenter = result.body;
+        expect(body.id).toBeDefined();
+        expect(body.title).toBe(dto.title);
+        expect(body.description).toBe(dto.description);
+        expect(body.companyId).toBe(dto.companyId);
+      });
+    });
+    describe('GET /jobs/:id', () => {
+      it('should return 200 when return a job.', async () => {
+        // Arrange
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+
+        // Act
+        const id = createJobBodyResult.id;
+        const result = await request(app.getHttpServer()).get(
+          `/${version}/jobs/${id}`,
+        );
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: JobPresenter = result.body;
+        expect(body.id).toBe(id);
+        expect(body.title).toBe(createJobDto.title);
+        expect(body.description).toBe(createJobDto.description);
+        expect(body.companyId).toBe(createJobDto.companyId);
+      });
+    });
+    describe('GET /jobs', () => {
+      it('should return 200 when return a list of jobs.', async () => {
+        // Arrange
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+
+        // Act
+        const result = await request(app.getHttpServer()).get(
+          `/${version}/jobs`,
+        );
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: JobPresenter[] = result.body;
+        expect(body[0].id).toBe(createJobBodyResult.id);
+        expect(body[0].title).toBe(createJobBodyResult.title);
+        expect(body[0].description).toBe(createJobBodyResult.description);
+        expect(body[0].companyId).toBe(createJobBodyResult.companyId);
+      });
+    });
+    describe('PUT /jobs/:id', () => {
+      it('should return 200 when update a job.', async () => {
+        // Arrange
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+
+        // Act
+        const id = createJobBodyResult.id;
+        const dto: UpdateJobDto = {
+          description: 'New description A',
+        };
+        const result = await request(app.getHttpServer())
+          .put(`/${version}/jobs/${id}`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({});
+      });
+    });
     describe('DELETE /jobs/:id', () => {});
   });
 

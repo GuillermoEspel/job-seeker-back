@@ -18,8 +18,13 @@ export class JobController {
   constructor(private readonly jobService: JobService) {}
 
   @Post()
-  createJob(@Body() body: CreateJobDto): Promise<string> {
-    return this.jobService.createJob(body);
+  @ApiOkResponse({
+    description: 'Ok.',
+    type: JobPresenter,
+  })
+  async createJob(@Body() body: CreateJobDto): Promise<JobPresenter> {
+    const job = await this.jobService.createJob(body);
+    return new JobPresenter(job);
   }
 
   @Get(':id')

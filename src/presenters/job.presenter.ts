@@ -5,6 +5,7 @@ const jobPresenterExample: JobPresenter = {
   id: '63d2e28f18828f9cc35369aa',
   title: 'Title A',
   description: 'Description A',
+  companyId: '63d2e28f18828f9cc35369ab',
 };
 
 export class JobPresenter {
@@ -26,9 +27,16 @@ export class JobPresenter {
   })
   description: string;
 
+  @ApiProperty({
+    description: 'Job company ID.',
+    example: jobPresenterExample.companyId,
+  })
+  companyId: string;
+
   constructor(job: JobEntity) {
     this.id = job.id;
     this.title = job.title;
     this.description = job.description;
+    this.companyId = job.companyId;
   }
 }
