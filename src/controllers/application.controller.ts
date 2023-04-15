@@ -22,8 +22,15 @@ export class ApplicationController {
   constructor(private readonly applicationService: ApplicationService) {}
 
   @Post()
-  createApplication(@Body() body: CreateApplicationDto): Promise<string> {
-    return this.applicationService.createApplication(body);
+  @ApiOkResponse({
+    description: 'Ok.',
+    type: ApplicationPresenter,
+  })
+  async createApplication(
+    @Body() body: CreateApplicationDto,
+  ): Promise<ApplicationPresenter> {
+    const application = await this.applicationService.createApplication(body);
+    return new ApplicationPresenter(application);
   }
 
   @Get(':id')

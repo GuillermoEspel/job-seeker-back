@@ -11,6 +11,7 @@ import { AllExceptionFilter } from '../src/filters';
 import { DtoException } from '../src/exceptions';
 import {
   CreateApplicantDto,
+  CreateApplicationDto,
   CreateCompanyDto,
   CreateJobDto,
   LoginCompanyDto,
@@ -18,15 +19,18 @@ import {
   RefreshTokenCompanyDto,
   RefreshTokenDto,
   UpdateApplicantDto,
+  UpdateApplicationDto,
   UpdateCompanyDto,
   UpdateJobDto,
 } from '../src/dtos';
 import {
   ApplicantPresenter,
+  ApplicationPresenter,
   AuthTokensPresenter,
   CompanyPresenter,
   JobPresenter,
 } from '../src/presenters';
+import { ApplicationStatus } from '../src/enums';
 
 describe('AppModule (e2e)', () => {
   let app: INestApplication;
@@ -34,6 +38,7 @@ describe('AppModule (e2e)', () => {
   let connection: Connection;
   let version: string;
   let createCompanyDto: CreateCompanyDto;
+  let createApplicantDto: CreateApplicantDto;
 
   beforeEach(async () => {
     // Initialize mongo memory server
@@ -83,6 +88,10 @@ describe('AppModule (e2e)', () => {
       password: 'pass1234',
       name: 'Company A',
       logo: 'logo.png',
+    };
+    createApplicantDto = {
+      email: 'test@example.com',
+      password: 'pass1234',
     };
   });
 
@@ -619,10 +628,195 @@ describe('AppModule (e2e)', () => {
   });
 
   describe('ApplicationController', () => {
-    describe('POST /applications', () => {});
-    describe('GET /applications/:id', () => {});
-    describe('GET /applications', () => {});
-    describe('PUT /applications/:id', () => {});
+    describe('POST /applications', () => {
+      it('should return 201 when create an application.', async () => {
+        // Arrange
+        const createApplicantResult = await request(app.getHttpServer())
+          .post(`/${version}/applicants`)
+          .send(createApplicantDto);
+        const createApplicantBodyResult: ApplicantPresenter =
+          createApplicantResult.body;
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+
+        // Act
+        const dto: CreateApplicationDto = {
+          applicantId: createApplicantBodyResult.id,
+          jobId: createJobBodyResult.id,
+        };
+        const result = await request(app.getHttpServer())
+          .post(`/${version}/applications`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(201);
+        expect(result.body).toBeDefined();
+        const body: ApplicationPresenter = result.body;
+        expect(body.id).toBeDefined();
+        expect(body.jobId).toBe(dto.jobId);
+        expect(body.applicantId).toBe(dto.applicantId);
+        expect(body.status).toBe(ApplicationStatus.PENDING);
+      });
+    });
+    describe('GET /applications/:id', () => {
+      it('should return 200 when return an application.', async () => {
+        // Arrange
+        const createApplicantResult = await request(app.getHttpServer())
+          .post(`/${version}/applicants`)
+          .send(createApplicantDto);
+        const createApplicantBodyResult: ApplicantPresenter =
+          createApplicantResult.body;
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+        const createApplicationDto: CreateApplicationDto = {
+          applicantId: createApplicantBodyResult.id,
+          jobId: createJobBodyResult.id,
+        };
+        const createApplicationResult = await request(app.getHttpServer())
+          .post(`/${version}/applications`)
+          .send(createApplicationDto);
+        const createApplicationBodyResult: ApplicationPresenter =
+          createApplicationResult.body;
+
+        // Act
+        const id = createApplicationBodyResult.id;
+        const result = await request(app.getHttpServer()).get(
+          `/${version}/applications/${id}`,
+        );
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: ApplicationPresenter = result.body;
+        expect(body.id).toBe(createApplicationBodyResult.id);
+        expect(body.jobId).toBe(createApplicationBodyResult.jobId);
+        expect(body.applicantId).toBe(createApplicationBodyResult.applicantId);
+        expect(body.status).toBe(createApplicationBodyResult.status);
+      });
+    });
+    describe('GET /applications', () => {
+      it('should return 200 when return a list of applications.', async () => {
+        // Arrange
+        const createApplicantResult = await request(app.getHttpServer())
+          .post(`/${version}/applicants`)
+          .send(createApplicantDto);
+        const createApplicantBodyResult: ApplicantPresenter =
+          createApplicantResult.body;
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+        const createApplicationDto: CreateApplicationDto = {
+          applicantId: createApplicantBodyResult.id,
+          jobId: createJobBodyResult.id,
+        };
+        const createApplicationResult = await request(app.getHttpServer())
+          .post(`/${version}/applications`)
+          .send(createApplicationDto);
+        const createApplicationBodyResult: ApplicationPresenter =
+          createApplicationResult.body;
+
+        // Act
+        const result = await request(app.getHttpServer()).get(
+          `/${version}/applications`,
+        );
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toBeDefined();
+        const body: ApplicationPresenter[] = result.body;
+        expect(body[0].id).toBe(createApplicationBodyResult.id);
+        expect(body[0].jobId).toBe(createApplicationBodyResult.jobId);
+        expect(body[0].applicantId).toBe(
+          createApplicationBodyResult.applicantId,
+        );
+        expect(body[0].status).toBe(createApplicationBodyResult.status);
+      });
+    });
+    describe('PUT /applications/:id', () => {
+      it('should return 200 when return an application.', async () => {
+        // Arrange
+        const createApplicantResult = await request(app.getHttpServer())
+          .post(`/${version}/applicants`)
+          .send(createApplicantDto);
+        const createApplicantBodyResult: ApplicantPresenter =
+          createApplicantResult.body;
+        const createCompanyResult = await request(app.getHttpServer())
+          .post(`/${version}/companies`)
+          .send(createCompanyDto);
+        const createCompanyBodyResult: CompanyPresenter =
+          createCompanyResult.body;
+        const createJobDto: CreateJobDto = {
+          title: 'Title A',
+          description: 'Description A',
+          companyId: createCompanyBodyResult.id,
+        };
+        const createJobResult = await request(app.getHttpServer())
+          .post(`/${version}/jobs`)
+          .send(createJobDto);
+        const createJobBodyResult: JobPresenter = createJobResult.body;
+        const createApplicationDto: CreateApplicationDto = {
+          applicantId: createApplicantBodyResult.id,
+          jobId: createJobBodyResult.id,
+        };
+        const createApplicationResult = await request(app.getHttpServer())
+          .post(`/${version}/applications`)
+          .send(createApplicationDto);
+        const createApplicationBodyResult: ApplicationPresenter =
+          createApplicationResult.body;
+
+        // Act
+        const id = createApplicationBodyResult.id;
+        const dto: UpdateApplicationDto = {
+          status: ApplicationStatus.CLOSED,
+        };
+        const result = await request(app.getHttpServer())
+          .put(`/${version}/applications/${id}`)
+          .send(dto);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(result.status).toBe(200);
+        expect(result.body).toEqual({});
+      });
+    });
     describe('DELETE /applications/:id', () => {});
   });
 });
